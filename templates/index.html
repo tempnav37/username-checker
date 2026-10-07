@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f4ed">
+  <title>Username Availability Checker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Username Lab home">
+      <span class="brand-mark">U<span>/</span></span>
+      <span>Username Lab<small>DATA STRUCTURES</small></span>
+    </a>
+    <div class="topbar-right"><span class="live-dot"></span><span>HASH TABLE ONLINE</span><span class="topbar-divider"></span><span class="table-label">Om Mandlik</span></div>
+  </header>
+
+  <main class="page-shell">
+    <section class="intro-row">
+      <div>
+        <p class="eyebrow">A practical hashing study</p>
+        <h1>Username<br><span>availability</span> checker<span class="period">.</span></h1>
+      </div>
+      <p class="intro-copy">Every lookup takes the same route: normalize the key, calculate its hash, then inspect one bucket. Try it and follow the path.</p>
+    </section>
+
+    <section class="workbench" aria-label="Username checker">
+      <div class="checker-panel">
+        <div class="section-kicker"><span>01</span> CHECK A USERNAME</div>
+        <form id="checker-form" autocomplete="off">
+          <label for="username-input">Your username</label>
+          <div class="input-row">
+            <span class="input-at">@</span>
+            <input id="username-input" name="username" placeholder="try admin" maxlength="24" spellcheck="false" required>
+            <button class="check-button" type="submit"><span>Check</span><span aria-hidden="true">↗</span></button>
+          </div>
+          <div class="input-meta"><span>Letters, numbers, underscore</span><span>MAX 24</span></div>
+        </form>
+        <div id="result" class="result-panel" aria-live="polite">
+          <div class="result-placeholder"><span class="placeholder-icon">↳</span><span>Enter a username to trace its lookup.</span></div>
+        </div>
+        <div id="suggestions" class="suggestions" hidden></div>
+      </div>
+
+      <aside class="trace-panel">
+        <div class="trace-heading"><div class="section-kicker"><span>02</span> LOOKUP TRACE</div><span class="trace-status" id="trace-status">READY</span></div>
+        <div class="trace-steps" id="trace-steps">
+          <div class="trace-step"><span class="step-index">01</span><div><small>NORMALIZE</small><strong id="trace-normalized">waiting for input</strong></div></div>
+          <div class="trace-step"><span class="step-index">02</span><div><small>HASH VALUE</small><strong id="trace-hash">—</strong></div></div>
+          <div class="trace-step"><span class="step-index">03</span><div><small>BUCKET INDEX</small><strong id="trace-bucket">—</strong></div></div>
+          <div class="trace-step trace-chain"><span class="step-index">04</span><div><small>CHAIN CONTENTS</small><div id="trace-chain-content" class="chain-content">The selected bucket will appear here.</div></div></div>
+        </div>
+        <div class="hash-equation"><span>bucket</span><b>=</b><span>hash(key)</span><b>mod</b><span>table size</span></div>
+      </aside>
+    </section>
+
+    <section class="stats-section" aria-labelledby="stats-title">
+      <div class="section-heading"><div><p class="eyebrow">Live table state</p><h2 id="stats-title">At a glance</h2></div><span class="updated-label"><span class="live-dot"></span> UPDATES IN REAL TIME</span></div>
+      <div class="stats-grid">
+        <article class="stat-cell stat-primary"><span class="stat-label">STORED USERNAMES</span><strong id="stat-total">—</strong><span class="stat-foot">registered keys</span></article>
+        <article class="stat-cell"><span class="stat-label">TABLE SIZE</span><strong id="stat-size">—</strong><span class="stat-foot">available buckets</span></article>
+        <article class="stat-cell"><span class="stat-label">COLLISIONS</span><strong id="stat-collisions">—</strong><span class="stat-foot">extra keys in chains</span></article>
+        <article class="stat-cell"><span class="stat-label">LOAD FACTOR</span><strong id="stat-load">—</strong><span class="stat-foot">keys ÷ buckets</span></article>
+        <article class="stat-cell"><span class="stat-label">OCCUPIED BUCKETS</span><strong id="stat-occupied">—</strong><span class="stat-foot">non-empty chains</span></article>
+      </div>
+    </section>
+
+    <section class="explorer-section" aria-labelledby="explorer-title">
+      <div class="section-heading explorer-heading">
+        <div><p class="eyebrow">Separate chaining</p><h2 id="explorer-title">Bucket explorer</h2></div>
+        <div class="explorer-controls">
+          <div class="segmented" role="group" aria-label="Bucket display filter"><button class="filter-button active" data-filter="all" type="button">All occupied</button><button class="filter-button" data-filter="collisions" type="button">Collisions</button></div>
+          <button id="sample-button" class="text-action" type="button">↻ <span>Load sample</span></button>
+          <button id="reset-button" class="text-action" type="button">× <span>Reset</span></button>
+        </div>
+      </div>
+      <div class="explorer-summary"><span id="bucket-summary">Loading buckets…</span><span class="mono-note">A collision is visible when a chain contains more than one key.</span></div>
+      <div id="bucket-grid" class="bucket-grid" aria-live="polite"></div>
+    </section>
+
+    <section class="lesson-section" aria-labelledby="lesson-title">
+      <div class="lesson-heading"><p class="eyebrow">Under the hood</p><h2 id="lesson-title">From key to<br>bucket.</h2></div>
+      <div class="lesson-flow" aria-label="Username to hash function to bucket to lookup result">
+        <div class="flow-node"><span>INPUT</span><strong>username</strong></div><span class="flow-arrow">→</span>
+        <div class="flow-node"><span>TRANSFORM</span><strong>polynomial hash</strong></div><span class="flow-arrow">→</span>
+        <div class="flow-node"><span>REDUCE</span><strong>hash % 151</strong></div><span class="flow-arrow">→</span>
+        <div class="flow-node flow-result"><span>INSPECT</span><strong>bucket chain</strong></div>
+      </div>
+      <p class="lesson-note">The table uses a deterministic polynomial hash and separate chaining. Colliding usernames share a bucket without replacing one another; lookup checks only that bucket's chain.</p>
+    </section>
+  </main>
+
+  <footer class="footer"><span>USERNAME LAB <span class="footer-slash">/</span>Created by:- Om Mandlik</span><span>AVERAGE LOOKUP <b>O(1)</b><span class="footer-dot">·</span> WORST CASE <b>O(n)</b></span></footer>
+</body>
+</html>
